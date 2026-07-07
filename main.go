@@ -1,33 +1,31 @@
 package main
 
 import (
-	"Go_Reseau/internal"
+	"Go_Reseau/SystemInfo"
 	"fmt"
+	"time"
 )
 
 func main() {
-	interfaceName := internal.SelectInterface()
-	fmt.Printf("Interface sélectionnée : %s\n", interfaceName)
-	fmt.Println("Démarrage de la capture de paquets...")
-	fmt.Println("Nombre de paquet a capturer")
-	compteur := 0
-	fmt.Scanf("%d", &compteur)
-	TrameCompleteMap := internal.ScanLayers(interfaceName, compteur)
-	fmt.Printf("Total de paquets capturés : %d\n", len(TrameCompleteMap))
-	fmt.Printf("Détails des paquets capturés :\n")
-	for cle, trameComplete := range TrameCompleteMap {
-		fmt.Printf("Paquet %s :\n", cle)
-		fmt.Printf("  Trame : %+v\n", *trameComplete.Trame)
-		fmt.Printf("Timestamp :%s\n", trameComplete.TimeStamp.Format("15:04:05.000"))
-		if trameComplete.PaquetIPv4 != nil {
-			fmt.Printf("  Paquet IPv4 : %+v\n", *trameComplete.PaquetIPv4)
-		}
-		if trameComplete.PaquetTCP != nil {
-			fmt.Printf("  Paquet TCP : %+v\n", *trameComplete.PaquetTCP)
-		}
-		if trameComplete.PaquetUDP != nil {
-			fmt.Printf("  Paquet UDP : %+v\n", *trameComplete.PaquetUDP)
-		}
+
+	osInfo, err := SystemInfo.GetOSInfo()
+	if err != nil {
+		fmt.Printf("Erreur : %v\n", err)
+		return
+	}
+	fmt.Printf("Informations sur le système d'exploitation :\n")
+	fmt.Printf("  Nom d'hôte : %s\n", osInfo.Hostname)
+	fmt.Printf("  Plateforme : %s\n", osInfo.Platform)
+	fmt.Printf("  Version : %s\n", osInfo.Version)
+	fmt.Printf("  Architecture du noyau : %s\n", osInfo.KernelArch)
+	fmt.Printf("  Temps de fonctionnement : %d secondes\n", osInfo.Uptime)
+	fmt.Printf("  Heure de démarrage : %s\n", time.Unix(int64(osInfo.BootTime), 0).Format("2006-01-02 15:04:05"))
+	//netsat
+	connections, err := SystemInfo.GetOpenConnections()
+	SystemInfo.PrintConnections(connections)
+	if err != nil {
+		fmt.Printf("Erreur lors de la récupération des connexions : %v\n", err)
+		return
 	}
 
 }
