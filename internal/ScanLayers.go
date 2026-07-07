@@ -112,6 +112,7 @@ func ScanLayers(interfaceName string, compteur int) map[string]TrameComplete {
 			}
 			cleUnique := fmt.Sprintf("paquet_%d", compteur)
 			dictionnaire[cleUnique] = TrameComplete{
+				TimeStamp:  packet.Metadata().Timestamp,
 				Trame:      &trame,
 				PaquetIPv4: &paquetIPv4,
 				PaquetTCP:  &paquetTCP,

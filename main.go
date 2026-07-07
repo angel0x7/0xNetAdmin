@@ -18,6 +18,7 @@ func main() {
 	for cle, trameComplete := range TrameCompleteMap {
 		fmt.Printf("Paquet %s :\n", cle)
 		fmt.Printf("  Trame : %+v\n", *trameComplete.Trame)
+		fmt.Printf("Timestamp :%s\n", trameComplete.TimeStamp.Format("15:04:05.000"))
 		if trameComplete.PaquetIPv4 != nil {
 			fmt.Printf("  Paquet IPv4 : %+v\n", *trameComplete.PaquetIPv4)
 		}
