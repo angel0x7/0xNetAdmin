@@ -20,12 +20,23 @@ func main() {
 	fmt.Printf("  Architecture du noyau : %s\n", osInfo.KernelArch)
 	fmt.Printf("  Temps de fonctionnement : %d secondes\n", osInfo.Uptime)
 	fmt.Printf("  Heure de démarrage : %s\n", time.Unix(int64(osInfo.BootTime), 0).Format("2006-01-02 15:04:05"))
-	//netsat
+
 	connections, err := SystemInfo.GetOpenConnections()
 	SystemInfo.PrintConnections(connections)
 	if err != nil {
 		fmt.Printf("Erreur lors de la récupération des connexions : %v\n", err)
 		return
+	}
+	//testing installed_apps
+
+	installedApps, err := SystemInfo.GetInstalledApplications()
+	if err != nil {
+		fmt.Printf("Erreur lors de la récupération des applications installées : %v\n", err)
+		return
+	}
+	fmt.Printf("\nApplications installées :\n")
+	for _, app := range installedApps {
+		fmt.Printf("  Nom : %s, Version : %s\n, SizeMB: %d ", app.Name, app.Version, app.SizeMB)
 	}
 
 }
