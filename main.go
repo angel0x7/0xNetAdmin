@@ -1,24 +1,32 @@
 package main
 
 import (
+	"Go_Reseau/internal"
 	"fmt"
-	"log"
-
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
 )
 
 func main() {
-
-	handle, err := pcap.OpenLive("eth0", 1600, true, pcap.BlockForever)
-	if err != nil {
-		log.Fatal(err)
+	interfaceName := internal.SelectInterface()
+	fmt.Printf("Interface sélectionnée : %s\n", interfaceName)
+	fmt.Println("Démarrage de la capture de paquets...")
+	fmt.Println("Nombre de paquet a capturer")
+	compteur := 0
+	fmt.Scanf("%d", &compteur)
+	TrameCompleteMap := internal.ScanLayers(interfaceName, compteur)
+	fmt.Printf("Total de paquets capturés : %d\n", len(TrameCompleteMap))
+	fmt.Printf("Détails des paquets capturés :\n")
+	for cle, trameComplete := range TrameCompleteMap {
+		fmt.Printf("Paquet %s :\n", cle)
+		fmt.Printf("  Trame : %+v\n", *trameComplete.Trame)
+		if trameComplete.PaquetIPv4 != nil {
+			fmt.Printf("  Paquet IPv4 : %+v\n", *trameComplete.PaquetIPv4)
+		}
+		if trameComplete.PaquetTCP != nil {
+			fmt.Printf("  Paquet TCP : %+v\n", *trameComplete.PaquetTCP)
+		}
+		if trameComplete.PaquetUDP != nil {
+			fmt.Printf("  Paquet UDP : %+v\n", *trameComplete.PaquetUDP)
+		}
 	}
-	defer handle.Close()
 
-	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-
-	for packet := range packetSource.Packets() {
-		fmt.Println(packet)
-	}
 }
