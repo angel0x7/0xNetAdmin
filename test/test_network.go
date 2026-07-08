@@ -2,8 +2,8 @@ package test
 
 import (
 	"Go_Reseau/Network"
+	"Go_Reseau/ScanApplicationLayer"
 	"fmt"
-	"time"
 )
 
 func TestScanLayers() {
@@ -19,7 +19,7 @@ func TestScanLayers() {
 	}
 
 	dictionnaire := Network.ScanLayers(NetworkInterface, compteur)
-	for key, trame := range dictionnaire {
+	/*	for key, trame := range dictionnaire {
 		fmt.Printf("\nPacket %s:\n", key)
 		fmt.Printf("Timestamp: %s\n", trame.TimeStamp.Format(time.RFC3339))
 		if trame.PaquetIPv4 != nil {
@@ -38,6 +38,7 @@ func TestScanLayers() {
 			fmt.Printf("Application Data: %+v\n", *trame.Application)
 		}
 
-	}
+	}*/
 
+	ScanApplicationLayer.AppProtocolsUncrypted(dictionnaire)
 }
