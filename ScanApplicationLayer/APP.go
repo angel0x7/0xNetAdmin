@@ -1,0 +1,5 @@
+package scanapplicationlayer
+
+func AppProtocols() {
+
+}
