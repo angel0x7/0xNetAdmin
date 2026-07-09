@@ -133,40 +133,46 @@ func AfficherAnalyseFlux(connexions map[ConnectionKey]*FluxReseau) {
 		estCrypte, proto, details := InspecterContenu(flux)
 		texteExtrait := AnalyserTexte(flux.StreamFinal)
 
-		// Formatage de l'en-tête selon le chiffrement
-		statusChiffrement := "🟢 [CHIFFRÉ]"
-		if !estCrypte && proto != "ICMP" && proto != "Texte/Binaire brut" {
-			statusChiffrement := "🚨 [ALERTE EN CLAIR - VULNÉRABLE]"
-			_ = statusChiffrement // Évite le warning go
-		}
-
 		if estCrypte {
-			fmt.Printf("🔒 %s Protocole: %s | %s\n", statusChiffrement, proto, details)
+			fmt.Printf("🔒 [CHIFFRÉ] Protocole: %s | %s\n", proto, details)
 		} else {
 			fmt.Printf("🔓 [EN CLAIR] Protocole: %s | %s\n", proto, details)
 		}
 
-		// Affichage de la liaison réseau
+		// 1. AFFICHAGE COUCHE 2 - PHYSIQUE (Ethernet MAC)
+		fmt.Printf("     Physique: MAC %02x:%02x:%02x:%02x:%02x:%02x ➔ %02x:%02x:%02x:%02x:%02x:%02x\n",
+			flux.SourceMAC[0], flux.SourceMAC[1], flux.SourceMAC[2], flux.SourceMAC[3], flux.SourceMAC[4], flux.SourceMAC[5],
+			flux.DestinationMAC[0], flux.DestinationMAC[1], flux.DestinationMAC[2], flux.DestinationMAC[3], flux.DestinationMAC[4], flux.DestinationMAC[5])
+
+		// 2. AFFICHAGE COUCHE 3 - RÉSEAU (Liaison IP & Détails IPv4)
 		if cle.Protocol == "ICMP" {
 			icmpType := cle.SrcPort >> 8
 			icmpCode := cle.SrcPort & 0x00FF
-			fmt.Printf("     Liaison : %d.%d.%d.%d ➔ %d.%d.%d.%d [ICMP Type %d, Code %d]\n",
+			fmt.Printf("     Réseau  : %d.%d.%d.%d ➔ %d.%d.%d.%d [ICMP Type %d, Code %d]\n",
 				cle.SrcIP[0], cle.SrcIP[1], cle.SrcIP[2], cle.SrcIP[3],
 				cle.DstIP[0], cle.DstIP[1], cle.DstIP[2], cle.DstIP[3], icmpType, icmpCode)
 		} else {
-			fmt.Printf("     Liaison : %s | %d.%d.%d.%d:%d ➔ %d.%d.%d.%d:%d\n",
+			fmt.Printf("     Réseau  : %s | %d.%d.%d.%d:%d ➔ %d.%d.%d.%d:%d\n",
 				cle.Protocol,
 				cle.SrcIP[0], cle.SrcIP[1], cle.SrcIP[2], cle.SrcIP[3], cle.SrcPort,
 				cle.DstIP[0], cle.DstIP[1], cle.DstIP[2], cle.DstIP[3], cle.DstPort)
 		}
 
-		fmt.Printf("     Taille  : %d octets réassemblés\n", len(flux.StreamFinal))
+		// Extraction de la Version et du Header Length (IHL) depuis VersionAndIHL
+		version := flux.VersionAndIHL >> 4
+		ihl := (flux.VersionAndIHL & 0x0F) * 4 // L'IHL est exprimé en mots de 32 bits, on multiplie par 4 pour l'avoir en octets
 
-		// Contenu visuel : Si c'est en clair, on montre le texte. Si c'est chiffré, on montre une empreinte.
+		fmt.Printf("     IPv4 Hdr: Version=%d | IHL=%d octets | TOS=0x%02x | TTL=%d\n",
+			version, ihl, flux.TypeOfService, flux.TTL)
+		fmt.Printf("               TotalLength=%d | ID=%d | Flags/Offset=0x%04x | Checksum=0x%04x\n",
+			flux.TotalLength, flux.Identification, flux.FlagsAndFragmentOffset, flux.HeaderChecksum)
+
+		// 3. AFFICHAGE COUCHE 7 - APPLICATION
+		fmt.Printf("     Volume  : %d octets applicatifs réassemblés\n", len(flux.StreamFinal))
 		fmt.Println("----- EXTRAIT DU CONTENU -----")
+
 		if estCrypte {
-			// Pour le chiffré, afficher le texte brut n'a pas de sens (ce ne sont que des points),
-			// on génère une empreinte MD5 pour prouver l'intégrité ou l'identité de la payload
+			// Calcul de l'empreinte MD5 pour le contenu chiffré
 			hash := md5.Sum(flux.StreamFinal)
 			fmt.Printf("[Données Chiffrées] Empreinte MD5 du payload: %x\n", hash)
 		} else {
