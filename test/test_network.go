@@ -20,6 +20,9 @@ func TestScanLayers() {
 	dictionnaire := Network.ScanLayers(NetworkInterface, compteur)
 	Fluxreau := Network.AnalyserFluxMultiProtocoles(dictionnaire)
 	Network.AfficherAnalyseFlux(Fluxreau)
+
+	statistics := Network.CalculerStatistiquesGlobales(Fluxreau)
+	Network.AfficherTableauxBord(statistics)
 	// Affichage de la data du flux TCP réassemblé
 
 	/*	for key, trame := range dictionnaire {
