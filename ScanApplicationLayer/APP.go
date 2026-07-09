@@ -1,15 +1,10 @@
 package ScanApplicationLayer
 
-import (
-	"Go_Reseau/Network"
-	"fmt"
-	"strings"
-)
-
-func AppProtocolsUncrypted(dictionnaire map[string]Network.TrameComplete) {
+/*
+func AppProtocolsUncrypted(connexion map[ConnectionKey]*FluxTCP) {
 	applicationProtocolsNonChiffre := []string{"HTTP", "FTP", "SMTP", "SNMP", "Telnet", "LLMNR", "DNS", "DHCP", "TFTP", "NTP", "IMAP", "POP3", "LDAP", "RDP", "SIP", "RTSP", "IRC", "XMPP"}
 
-	for key, datapaquet := range dictionnaire {
+	for Fragments, datapaquet := range connexion {
 		if datapaquet.Application == nil || len(datapaquet.Application.Data) == 0 {
 			continue
 		}

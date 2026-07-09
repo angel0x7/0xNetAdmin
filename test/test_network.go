@@ -18,7 +18,7 @@ func TestScanLayers() {
 	}
 
 	dictionnaire := Network.ScanLayers(NetworkInterface, compteur)
-	FluxTCP := Network.AnalyserFluxTCP(dictionnaire)
+	FluxTCP := Network.AnalyserFluxMultiProtocoles(dictionnaire)
 	// Affichage de la data du flux TCP réassemblé
 	for cle, flux := range FluxTCP {
 		fmt.Printf("Flux détecté depuis %d.%d.%d.%d:%d -> %d.%d.%d.%d:%d\n",
